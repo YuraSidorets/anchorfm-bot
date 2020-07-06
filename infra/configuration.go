@@ -18,13 +18,22 @@ type Configuration struct {
 }
 
 // Load configuration from file
-func (config Configuration) Load(configPath string) (Configuration, error) {
+func (config Configuration) Load(configPath string, env bool) (Configuration, error) {
 	file, err := os.Open(configPath)
 	if err != nil {
 		log.Println(err)
 	}
-	decoder := json.NewDecoder(file)
 	var configuration Configuration
+	if env {
+		err := json.Unmarshal([]byte(configPath), &configuration)
+		if err != nil {
+			log.Println(err)
+			return configuration, err
+		}
+		return configuration, nil
+	}
+
+	decoder := json.NewDecoder(file)	
 	err = decoder.Decode(&configuration)
 	if err != nil {
 		log.Println(err)
