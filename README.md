@@ -1,5 +1,5 @@
 # anchorfm-bot
-Telegram bot for Anchor.fm written in [Go](https://golang.org) using [go-rod](https://github.com/go-rod/rod) or statistics scraping from Anchor, and [telegram-bot-api](https://github.com/go-telegram-bot-api/telegram-bot-api) for Telegram.
+Telegram bot for Anchor.fm written in [Go](https://golang.org) using [go-rod](https://github.com/go-rod/rod) for statistics scraping from Anchor, and [telegram-bot-api](https://github.com/go-telegram-bot-api/telegram-bot-api) for Telegram.
 
 
 ## Setup
