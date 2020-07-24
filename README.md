@@ -3,7 +3,7 @@ Telegram bot for Anchor.fm written in [Go](https://golang.org) using [go-rod](ht
 
 
 ## Setup
-- Clone this repository or use `go get github.com/YuraSidorets/anchorfm-bot`
+- Clone this repository
 - Build everything: `go build`
 - Follow Telegram instructions to create a new bot user and get your token. (https://core.telegram.org/bots#3-how-do-i-create-a-bot)
 - Update required fields in the "config/config.json" with your values:
