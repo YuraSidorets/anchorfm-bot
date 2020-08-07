@@ -13,6 +13,7 @@ Telegram bot for Anchor.fm written in [Go](https://golang.org) using [go-rod](ht
     - `"TimeRangeStart"` - start date for Anchor.fm to get your statistics (Unix Epoch)
     - `"WebStationId"` - you can find it in the https://anchor.fm/api/podcast/metadata response on Anchor page
     - `"UserId"`- you can find it in the https://anchor.fm/api/currentuser response on Anchor page
+    - `"TopEpisodesLimit"` - Max number of episodes to retrieve for Top Episodes command 
 - Run anchorfm-bot using command `anchorfm-bot ./config/config.json`
 
 ## Supported commands

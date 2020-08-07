@@ -8,13 +8,14 @@ import (
 
 // Configuration contains all configuration options
 type Configuration struct {
-	BotToken          string `json:"BotToken"`
-	EnableDebug       bool   `json:"EnableDebug"`
-	AnchorUser		  string `json:"AnchorUser"`
-	AnchorPass		  string `json:"AnchorPass"`
-	TimeRangeStart	  int64 `json:"TimeRangeStart"`
-	WebStationID	  string `json:"WebStationId"`
-	UserID		  	  string `json:"UserId"`
+	BotToken         string `json:"BotToken"`
+	EnableDebug      bool   `json:"EnableDebug"`
+	AnchorUser       string `json:"AnchorUser"`
+	AnchorPass       string `json:"AnchorPass"`
+	TimeRangeStart   int64  `json:"TimeRangeStart"`
+	WebStationID     string `json:"WebStationId"`
+	UserID           string `json:"UserId"`
+	TopEpisodesLimit int64  `json:"TopEpisodesLimit"`
 }
 
 // Load configuration from file
@@ -33,7 +34,7 @@ func (config Configuration) Load(configPath string, env bool) (Configuration, er
 		return configuration, nil
 	}
 
-	decoder := json.NewDecoder(file)	
+	decoder := json.NewDecoder(file)
 	err = decoder.Decode(&configuration)
 	if err != nil {
 		log.Println(err)
