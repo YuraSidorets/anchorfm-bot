@@ -21,6 +21,12 @@ type AnchorResponse struct {
 	} `json:"data"`
 }
 
+type AnchorResponseAudience struct {
+	Data struct {
+		Rows []interface{} `json:"rows"`
+	} `json:"data"`
+}
+
 // LoginAnchor returns your anchor dashboard page using creds provided
 func LoginAnchor(browser *rod.Browser, config infra.Configuration) *rod.Page {
 	page := browser.Page("https://anchor.fm/login")
@@ -37,6 +43,13 @@ func LoginAnchor(browser *rod.Browser, config infra.Configuration) *rod.Page {
 	page.WaitLoad()
 	page.Element("div.css-vax5dl").Text()
 	return page
+}
+
+// GetAudienceSize returns podcast audience size
+func GetAudienceSize(page *rod.Page, config infra.Configuration) float64 {
+	url := fmt.Sprintf("https://anchor.fm/api/proxy/v3/analytics/station/webStationId:%v/audienceSize", config.WebStationID)
+	result := getDataAudience(page, url)
+	return result.Data.Rows[0].(float64)
 }
 
 // GetAge returns plays percent by age
@@ -143,6 +156,20 @@ func getData(page *rod.Page, url string) AnchorResponse {
 	playsString := page.ElementByJS(`() => document.body`).Text()
 
 	var data AnchorResponse
+	err := json.Unmarshal([]byte(playsString), &data)
+	if err != nil {
+		log.Println(err)
+	}
+	return data
+}
+
+func getDataAudience(page *rod.Page, url string) AnchorResponseAudience {
+	page.Navigate(url)
+	page.WaitLoad()
+
+	playsString := page.ElementByJS(`() => document.body`).Text()
+
+	var data AnchorResponseAudience
 	err := json.Unmarshal([]byte(playsString), &data)
 	if err != nil {
 		log.Println(err)
