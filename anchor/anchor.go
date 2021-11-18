@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/go-rod/rod"
+	"github.com/go-rod/rod/lib/proto"
 )
 
 type Totals struct {
@@ -21,7 +22,7 @@ type AnchorResponse struct {
 	} `json:"data"`
 }
 
-type AnchorResponseAudience struct {
+type AnchorResponseTotals struct {
 	Data struct {
 		Rows []interface{} `json:"rows"`
 	} `json:"data"`
@@ -29,26 +30,35 @@ type AnchorResponseAudience struct {
 
 // LoginAnchor returns your anchor dashboard page using creds provided
 func LoginAnchor(browser *rod.Browser, config infra.Configuration) *rod.Page {
-	page := browser.Page("https://anchor.fm/login")
+
+	page, _ := browser.Page(proto.TargetCreateTarget{URL: "https://anchor.fm/login"})
+
 	page.WaitLoad()
 
 	log.Printf("input user email")
-	page.Element("#email").Click().Input(config.AnchorUser)
+	el, _ := page.Element("#email")
+	el.Input(config.AnchorUser)
+	el.Click(proto.InputMouseButtonLeft)
 
 	log.Printf("input user pass")
-	page.Element("#password").Click().Input(config.AnchorPass)
+	el2, _ := page.Element("#password")
+	el2.Input(config.AnchorPass)
+	el2.Click(proto.InputMouseButtonLeft)
 
 	log.Printf("submit login form")
-	page.Element("#LoginForm > div.css-1bwv8cc > button").Click()
+	el3, _ := page.Element("#LoginForm > div.css-1bwv8cc > button")
+	el3.Click(proto.InputMouseButtonLeft)
 	page.WaitLoad()
-	page.Element("div.css-vax5dl").Text()
+
+	// text, _ := page.MustElement("div.css-vax5dl").Text()
+	// log.Printf("%s", text)
 	return page
 }
 
 // GetAudienceSize returns podcast audience size
 func GetAudienceSize(page *rod.Page, config infra.Configuration) float64 {
 	url := fmt.Sprintf("https://anchor.fm/api/proxy/v3/analytics/station/webStationId:%v/audienceSize", config.WebStationID)
-	result := getDataAudience(page, url)
+	result := getDataTotals(page, url)
 	return result.Data.Rows[0].(float64)
 }
 
@@ -134,26 +144,17 @@ func GetPlaysByEpisode(page *rod.Page, config infra.Configuration) map[string]in
 }
 
 // GetTotalsCount returns total plays for podcast
-func GetTotalsCount(page *rod.Page, config infra.Configuration) Totals {
-	url := "https://anchor.fm/api/podcast/analytics/downloads/all"
-	page.Navigate(url)
-	page.WaitLoad()
-
-	totalsString := page.ElementByJS(`() => document.body`).Text()
-
-	var data Totals
-	err := json.Unmarshal([]byte(totalsString), &data)
-	if err != nil {
-		log.Println(err)
-	}
-	return data
+func GetTotalsCount(page *rod.Page, config infra.Configuration) float64 {
+	url := fmt.Sprintf("https://anchor.fm/api/proxy/v3/analytics/station/webStationId:%v/totalPlays", config.WebStationID)
+	result := getDataTotals(page, url)
+	return result.Data.Rows[0].(float64)
 }
 
 func getData(page *rod.Page, url string) AnchorResponse {
 	page.Navigate(url)
 	page.WaitLoad()
 
-	playsString := page.ElementByJS(`() => document.body`).Text()
+	playsString, _ := page.MustElementByJS(`() => document.body`).Text()
 
 	var data AnchorResponse
 	err := json.Unmarshal([]byte(playsString), &data)
@@ -163,14 +164,14 @@ func getData(page *rod.Page, url string) AnchorResponse {
 	return data
 }
 
-func getDataAudience(page *rod.Page, url string) AnchorResponseAudience {
+func getDataTotals(page *rod.Page, url string) AnchorResponseTotals {
 	page.Navigate(url)
 	page.WaitLoad()
 
-	playsString := page.ElementByJS(`() => document.body`).Text()
+	totalsString, _ := page.MustElementByJS(`() => document.body`).Text()
 
-	var data AnchorResponseAudience
-	err := json.Unmarshal([]byte(playsString), &data)
+	var data AnchorResponseTotals
+	err := json.Unmarshal([]byte(totalsString), &data)
 	if err != nil {
 		log.Println(err)
 	}
@@ -179,7 +180,7 @@ func getDataAudience(page *rod.Page, url string) AnchorResponseAudience {
 
 // StartBrowser starts headless browser
 func StartBrowser(config infra.Configuration) *rod.Browser {
-	browser := rod.New().Connect()
+	browser := rod.New().MustConnect()
 	log.Printf("Browser started")
 	return browser
 }

@@ -7,7 +7,7 @@ import (
 	"log"
 	"sort"
 
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 //Run starts telegram bot listener
@@ -26,14 +26,11 @@ func Run(config infra.Configuration) {
 	updateConfig := tgbotapi.NewUpdate(0)
 	updateConfig.Timeout = 60
 
-	updates, err := bot.GetUpdatesChan(updateConfig)
-	if err != nil {
-		log.Panic(err)
-	}
+	updates := bot.GetUpdatesChan(updateConfig)
+
 	browser := anchor.StartBrowser(config)
 	defer anchor.StopBrowser(browser)
 	page := anchor.LoginAnchor(browser, config)
-
 	for update := range updates {
 		if update.Message == nil {
 			continue
@@ -43,7 +40,8 @@ func Run(config infra.Configuration) {
 		case "stats":
 			totals := anchor.GetTotalsCount(page, config)
 			audienceSize := anchor.GetAudienceSize(page, config)
-			sendMessage(bot, update.Message.Chat.ID, fmt.Sprintf("Total Plays: %d \nEstimated audience size: %v", totals.TotalPlays, audienceSize))
+			fmt.Printf("totals: %v, aud: %v", totals, audienceSize)
+			sendMessage(bot, update.Message.Chat.ID, fmt.Sprintf("Total Plays: %v \nEstimated audience size: %v", totals, audienceSize))
 		case "plays":
 			plays := anchor.GetPlaysByEpisode(page, config)
 
